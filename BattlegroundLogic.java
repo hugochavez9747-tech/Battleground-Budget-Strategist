@@ -6,7 +6,7 @@
  * IDE: IntelliJ
  * Description: Business logic for the Battleground Budget Strategist: state data, input cleanup and validation, and the diminishing-returns swing model.
  * I have not used unauthorized source code, either modified or unmodified
- * Documentation of Resources Used: 
+ * Documentation of Resources Used:
  */
 
 public class BattlegroundLogic {
@@ -40,5 +40,26 @@ public class BattlegroundLogic {
     // String -> int
     public static int getStateIndex(String code) {
         return VALID_CODES.indexOf("|" + code + "|") / 3; // each entry in VALID_CODES takes 3 characters
+    }
+
+    // isValidSpend will check that spend is not negative and does not exceed the remaining budget
+    // double, double -> boolean
+    public static boolean isValidSpend(double spend, double remainingBudget) {
+        return spend >= 0 && spend <= remainingBudget;
+    }
+
+    // calculateSwing will model diminishing returns on spending, capped at MAX_SWING
+    // double -> double
+    public static double calculateSwing(double spend) {
+        if (spend <= 0) {
+            return 0.0; // avoids Math.sqrt of a negative number
+        }
+        return Math.min(MAX_SWING, SWING_FACTOR * Math.sqrt(spend));
+    }
+
+    // isStateWon will decide whether the swing overcomes the state's baseline deficit
+    // double, double -> boolean
+    public static boolean isStateWon(double swing, double deficit) {
+        return swing >= deficit;
     }
 }
