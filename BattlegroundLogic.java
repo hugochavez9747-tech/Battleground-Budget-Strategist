@@ -2,10 +2,11 @@
  * Author: Hugo Chavez
  * Date: October 7, 2026
  * Course: CIS171
- * IDE: VS Code
- * File: BattlegroundLogic.java
- * Description: Business logic for the Battleground Budget Strategist: state data, input
- *              cleanup and validation, and the diminishing-returns swing model.
+ * Operating System: Mac
+ * IDE: IntelliJ
+ * Description: Business logic for the Battleground Budget Strategist: state data, input cleanup and validation, and the diminishing-returns swing model.
+ * I have not used unauthorized source code, either modified or unmodified
+ * Documentation of Resources Used: 
  */
 
 public class BattlegroundLogic {
