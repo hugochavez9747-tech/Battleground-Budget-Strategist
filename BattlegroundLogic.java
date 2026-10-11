@@ -1,6 +1,6 @@
 /*
  * Author: Hugo Chavez
- * Date: October 7, 2026
+ * Date: October 10, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
@@ -61,5 +61,35 @@ public class BattlegroundLogic {
     // double, double -> boolean
     public static boolean isStateWon(double swing, double deficit) {
         return swing >= deficit;
+    }
+
+    // calculateStateVotes will return a state's electoral votes if the spend wins it, otherwise 0
+    // double, int -> int
+    public static int calculateStateVotes(double spend, int stateIndex) {
+        double swing = calculateSwing(spend);
+        if (isStateWon(swing, DEFICITS[stateIndex])) {
+            return ELECTORAL_VOTES[stateIndex];
+        }
+        return 0;
+    }
+
+    // calculateTotalVotes will add up the electoral votes won across all of the states
+    // double[] -> int
+    public static int calculateTotalVotes(double[] spends) {
+        int totalVotes = 0;
+        for (int stateIndex = 0; stateIndex < spends.length; stateIndex++) {
+            totalVotes += calculateStateVotes(spends[stateIndex], stateIndex);
+        }
+        return totalVotes;
+    }
+
+    // calculateTotalSpent will add up the spending across all of the states
+    // double[] -> double
+    public static double calculateTotalSpent(double[] spends) {
+        double totalSpent = 0;
+        for (double spend : spends) {
+            totalSpent += spend;
+        }
+        return totalSpent;
     }
 }

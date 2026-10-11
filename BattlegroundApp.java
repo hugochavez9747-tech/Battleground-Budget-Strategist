@@ -1,6 +1,6 @@
 /*
  * Author: Hugo Chavez
- * Date: October 7, 2026
+ * Date: October 10, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
@@ -8,26 +8,28 @@
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
-
 import java.util.Scanner;
 
-/*
- * Incremental design: I built this in three small steps and tested each before moving on.
- * Step 1 was the state data and input cleanup, Step 2 added the rules and math, Step 3 added the budget input with validation and the JUnit tests for the core methods.
- * Next I will add the loop over the four states, then efficiency and rating, then the report and the run-again loop. printReport is a stub until the rest of the data exists.
- * Question: should the loop that reads each state code and spend stay in main with its own validation loops inside it, or should it go into a separate method?
- * Struggle: I am not sure yet how to line up the report columns with printf when the dollar amounts have commas and different lengths.
- */
 public class BattlegroundApp {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
         System.out.println("========== BATTLEGROUND BUDGET STRATEGIST ==========");
-        double budget = getBudget(input);
-        System.out.printf("Total Budget: $%,.2f%n", budget);
+        instructions();
+        System.out.println();
+        runStrategy(input);
 
         input.close();
+    }
+
+    // instructions will explain how to use the program
+    // none -> void
+    public static void instructions() {
+        System.out.println("Split your campaign budget across four battleground states.");
+        System.out.println("Each state can be funded once, and you can enter 0 to skip one.");
+        System.out.println("Extra spending in a state helps less and less, so spread it wisely.");
+        System.out.println("A state is won when its swing is at least its deficit.");
     }
 
     // getBudget will prompt until the user enters a number greater than 0
@@ -52,9 +54,85 @@ public class BattlegroundApp {
         return budget;
     }
 
-    // printReport will display the state results, total electoral votes, efficiency, and rating
-    // String[], double[], int, double, double -> void
-    // STUB: not implemented yet; it will print the formatted table from my proposal using printf
-    public static void printReport(String[] codes, double[] spends, int totalVotes, double remaining, double efficiency) {
+    // getStateCode will prompt until the user enters a valid state that has not been funded yet
+    // Scanner, boolean[] -> String
+    public static String getStateCode(Scanner input, boolean[] funded) {
+        String code = "";
+        boolean valid = false;
+
+        while (!valid) {
+            System.out.print("Enter a state to fund (WI, MI, PA, GA): ");
+            code = BattlegroundLogic.standardizeStateCode(input.nextLine());
+            if (!BattlegroundLogic.isValidState(code)) {
+                System.out.println("Invalid state. Choose WI, MI, PA, or GA.");
+            } else if (funded[BattlegroundLogic.getStateIndex(code)]) {
+                System.out.println(code + " already has a spend entered.");
+            } else {
+                valid = true;
+            }
+        }
+
+        return code;
+    }
+
+    // getSpend will prompt until the user enters a spend that fits the remaining budget
+    // Scanner, String, double -> double
+    public static double getSpend(Scanner input, String code, double remaining) {
+        double spend = -1;
+
+        while (!BattlegroundLogic.isValidSpend(spend, remaining)) {
+            System.out.printf("Enter spend for %s (0 to skip): $", code);
+            if (input.hasNextDouble()) {
+                spend = input.nextDouble();
+                if (!BattlegroundLogic.isValidSpend(spend, remaining)) {
+                    System.out.printf("Spend must be between $0 and $%,.2f.%n", remaining);
+                }
+            } else {
+                System.out.println("Please enter a number.");
+                input.next();
+            }
+        }
+        input.nextLine(); // clear the leftover newline so later nextLine() calls work
+
+        return spend;
+    }
+
+    // getSpends will collect one spend for each state and return them in state data order
+    // Scanner, double -> double[]
+    public static double[] getSpends(Scanner input, double budget) {
+        double[] spends = new double[BattlegroundLogic.STATE_CODES.length];
+        boolean[] funded = new boolean[spends.length];
+        double remaining = budget;
+
+        for (int entry = 1; entry <= spends.length; entry++) {
+            System.out.printf("%nEntry %d of %d | Remaining budget: $%,.2f%n", entry, spends.length, remaining);
+            String code = getStateCode(input, funded);
+            int stateIndex = BattlegroundLogic.getStateIndex(code);
+            spends[stateIndex] = getSpend(input, code, remaining);
+            funded[stateIndex] = true;
+            remaining -= spends[stateIndex];
+        }
+
+        return spends;
+    }
+
+    // runStrategy will get one set of spending from the user and show the electoral votes won
+    // Scanner -> void
+    public static void runStrategy(Scanner input) {
+        double budget = getBudget(input);
+        double[] spends = getSpends(input, budget);
+
+        int totalVotes = BattlegroundLogic.calculateTotalVotes(spends);
+        double totalSpent = BattlegroundLogic.calculateTotalSpent(spends);
+
+        System.out.printf("%nTotal Spent: $%,.2f%n", totalSpent);
+        System.out.printf("Electoral Votes Won: %d%n", totalVotes);
+    }
+
+    // printReport will display the state-by-state results and campaign totals
+    // double, double[], int, double, double, String -> void
+    // STUB: report formatting is not written yet
+    public static void printReport(double budget, double[] spends, int totalVotes,
+            double remaining, double efficiency, String rating) {
     }
 }
