@@ -1,10 +1,10 @@
 /*
  * Author: Hugo Chavez
- * Date: October 10, 2026
+ * Date: October 11, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
- * Description: Business logic for the Battleground Budget Strategist: state data, input cleanup and validation, and the diminishing-returns swing model.
+ * Description: JUnit tests for the BattlegroundLogic methods: calculateSwing, standardizeStateCode, isValidState, and isValidSpend.
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
@@ -16,6 +16,9 @@ public class BattlegroundLogic {
     public static final double[] DEFICITS = {1.0, 1.5, 2.0, 2.5};
     public static final double MAX_SWING = 4.0;
     public static final double SWING_FACTOR = 0.001;
+    public static final double DOLLARS_PER_MILLION = 1000000.0;
+    public static final double EXCELLENT_EFFICIENCY = 2.5;
+    public static final double SOLID_EFFICIENCY = 1.5;
 
     // pipe-delimited so indexOf cannot match across two neighboring codes (e.g. "IM")
     private static final String VALID_CODES = "|WI|MI|PA|GA|";
@@ -91,5 +94,26 @@ public class BattlegroundLogic {
             totalSpent += spend;
         }
         return totalSpent;
+    }
+
+    // calculateEfficiency will compute electoral votes won per $1 million spent
+    // int, double -> double
+    public static double calculateEfficiency(int electoralVotes, double amountSpent) {
+        if (amountSpent <= 0) {
+            return 0.0; // nothing spent, so avoid dividing by zero
+        }
+        return electoralVotes / (amountSpent / DOLLARS_PER_MILLION);
+    }
+
+    // getRating will convert an efficiency value into a rating word
+    // double -> String
+    public static String getRating(double efficiency) {
+        if (efficiency >= EXCELLENT_EFFICIENCY) {
+            return "Excellent";
+        } else if (efficiency >= SOLID_EFFICIENCY) {
+            return "Solid";
+        } else {
+            return "Needs work";
+        }
     }
 }

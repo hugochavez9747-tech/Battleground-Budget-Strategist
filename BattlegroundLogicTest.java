@@ -1,6 +1,6 @@
 /*
  * Author: Hugo Chavez
- * Date: October 10, 2026
+ * Date: October 11, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
@@ -8,7 +8,6 @@
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

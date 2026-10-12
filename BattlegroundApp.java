@@ -1,6 +1,6 @@
 /*
  * Author: Hugo Chavez
- * Date: October 10, 2026
+ * Date: October 11, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
@@ -8,6 +8,7 @@
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
+
 import java.util.Scanner;
 
 public class BattlegroundApp {
@@ -116,7 +117,7 @@ public class BattlegroundApp {
         return spends;
     }
 
-    // runStrategy will get one set of spending from the user and show the electoral votes won
+    // runStrategy will get one set of spending from the user and show the full report
     // Scanner -> void
     public static void runStrategy(Scanner input) {
         double budget = getBudget(input);
@@ -124,15 +125,39 @@ public class BattlegroundApp {
 
         int totalVotes = BattlegroundLogic.calculateTotalVotes(spends);
         double totalSpent = BattlegroundLogic.calculateTotalSpent(spends);
+        double efficiency = BattlegroundLogic.calculateEfficiency(totalVotes, totalSpent);
+        String rating = BattlegroundLogic.getRating(efficiency);
 
-        System.out.printf("%nTotal Spent: $%,.2f%n", totalSpent);
-        System.out.printf("Electoral Votes Won: %d%n", totalVotes);
+        printReport(budget, spends, totalVotes, budget - totalSpent, efficiency, rating);
     }
 
     // printReport will display the state-by-state results and campaign totals
     // double, double[], int, double, double, String -> void
-    // STUB: report formatting is not written yet
     public static void printReport(double budget, double[] spends, int totalVotes,
             double remaining, double efficiency, String rating) {
+        System.out.printf("%n%-8s%-18s%-12s%-12s%-8s%-5s%n", "State", "Spend", "Swing", "Deficit", "Result", "EVs");
+
+        for (int stateIndex = 0; stateIndex < spends.length; stateIndex++) {
+            double swing = BattlegroundLogic.calculateSwing(spends[stateIndex]);
+            int votes = BattlegroundLogic.calculateStateVotes(spends[stateIndex], stateIndex);
+            String result = "LOST";
+            if (votes > 0) {
+                result = "WON";
+            }
+
+            System.out.printf("%-8s%-18s%-12s%-12s%-8s%-5d%n",
+                    BattlegroundLogic.STATE_CODES[stateIndex],
+                    String.format("$%,.2f", spends[stateIndex]),
+                    String.format("%.2f pts", swing),
+                    String.format("%.2f pts", BattlegroundLogic.DEFICITS[stateIndex]),
+                    result,
+                    votes);
+        }
+
+        System.out.printf("%n%-24s$%,.2f%n", "Total Budget:", budget);
+        System.out.printf("%-24s%d%n", "Electoral Votes Won:", totalVotes);
+        System.out.printf("%-24s$%,.2f%n", "Budget Remaining:", remaining);
+        System.out.printf("%-24s%.2f EVs per $1M%n", "Efficiency:", efficiency);
+        System.out.printf("%-24s%s%n", "Rating:", rating);
     }
 }
