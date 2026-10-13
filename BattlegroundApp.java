@@ -1,6 +1,6 @@
 /*
  * Author: Hugo Chavez
- * Date: October 11, 2026
+ * Date: October 12, 2026
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
@@ -18,8 +18,15 @@ public class BattlegroundApp {
 
         System.out.println("========== BATTLEGROUND BUDGET STRATEGIST ==========");
         instructions();
-        System.out.println();
-        runStrategy(input);
+
+        boolean runAgain = true;
+        while (runAgain) {
+            System.out.println();
+            runStrategy(input);
+            runAgain = askRunAgain(input);
+        }
+
+        System.out.println("Thanks for using the Battleground Budget Strategist.");
 
         input.close();
     }
@@ -159,5 +166,25 @@ public class BattlegroundApp {
         System.out.printf("%-24s$%,.2f%n", "Budget Remaining:", remaining);
         System.out.printf("%-24s%.2f EVs per $1M%n", "Efficiency:", efficiency);
         System.out.printf("%-24s%s%n", "Rating:", rating);
+    }
+
+    // askRunAgain will prompt until the user answers yes or no
+    // Scanner -> boolean
+    public static boolean askRunAgain(Scanner input) {
+        String answer = "";
+
+        while (!answer.equals("Y") && !answer.equals("N")) {
+            System.out.print("\nRun another strategy? (Y/N): ");
+            String reply = input.nextLine().trim().toUpperCase();
+            answer = "";
+            if (!reply.isEmpty()) {
+                answer = reply.substring(0, 1);
+            }
+            if (!answer.equals("Y") && !answer.equals("N")) {
+                System.out.println("Please enter Y or N.");
+            }
+        }
+
+        return answer.equals("Y");
     }
 }
