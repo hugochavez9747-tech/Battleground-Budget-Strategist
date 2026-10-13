@@ -4,7 +4,7 @@
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
- * Description: JUnit tests for the BattlegroundLogic methods: calculateSwing, standardizeStateCode, isValidState, and isValidSpend.
+ * Description: Business logic for the Battleground Budget Strategist: state data, input cleanup and validation, the diminishing-returns swing model, the electoral vote and spending totals, and the efficiency rating.
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
