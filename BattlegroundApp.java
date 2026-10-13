@@ -4,7 +4,7 @@
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
- * Description: Console user interface for the Battleground Budget Strategist. Gets the campaign budget from the user and validates it.
+ * Description: Console user interface for the Battleground Budget Strategist. Gets the budget, state codes, and spending from the user, prints a formatted report, and repeats until the user quits.
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
