@@ -4,7 +4,7 @@
  * Course: CIS171
  * Operating System: Mac
  * IDE: IntelliJ
- * Description: JUnit tests for the BattlegroundLogic methods: calculateSwing, standardizeStateCode, isValidState, and isValidSpend.
+ * Description: JUnit tests for the BattlegroundLogic methods: calculateSwing, standardizeStateCode, isValidState, isValidSpend, isStateWon, the vote and spending totals, calculateEfficiency, and getRating.
  * I have not used unauthorized source code, either modified or unmodified
  * Documentation of Resources Used:
  */
