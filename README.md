@@ -2,17 +2,19 @@
 
 A Java console program that puts you in the seat of a campaign manager. You split a fixed budget across four battleground states, and the program models how far each dollar goes, tells you which states you win, and rates how efficiently you spent.
 
-Midterm project for **CIS171** (Java programming) by Hugo Chavez.
+A companion **Gurobi optimizer** (Python, in `optimizer/`) solves the same problem mathematically and finds the best possible spending plan, so you can compare your strategy against the optimum.
+
+Midterm project for CIS171 (Java programming) by Hugo Chavez.
 
 ## How it works
 
 1. Enter your total campaign budget.
-2. Make four spending entries. Each entry is a state code (`WI`, `MI`, `PA`, or `GA`) and a dollar amount. Each state can be funded once, and you can enter `0` to skip a state.
+2. Make four spending entries. Each entry is a state code (WI, MI, PA, or GA) and a dollar amount. Each state can be funded once, and you can enter 0 to skip a state.
 3. The program calculates the swing (in points) each state gains from your spending and compares it to that state's baseline deficit. If the swing is at least the deficit, you win the state and its electoral votes.
 4. A report shows the state-by-state results, your total electoral votes, the budget you have left, an efficiency score, and a rating.
 5. Choose whether to run another strategy.
 
-### The spending model
+## The spending model
 
 Spending has diminishing returns, so doubling a state's budget does not double its swing:
 
@@ -22,7 +24,7 @@ swing = min(4.0, 0.001 * sqrt(spend))
 
 Efficiency is electoral votes won per $1 million spent. The rating is **Excellent** at 2.5 or higher, **Solid** at 1.5 or higher, and **Needs work** below that.
 
-### State data
+## State data
 
 The electoral votes are real. The baseline deficits are simplified, fictional values chosen to keep the model easy to test.
 
@@ -79,23 +81,64 @@ Thanks for using the Battleground Budget Strategist.
 ## Input validation
 
 - The budget must be a number greater than 0.
-- State codes are trimmed and uppercased, so ` wi ` works. Unknown states and states that already have a spend are rejected.
+- State codes are trimmed and uppercased, so `wi` works. Unknown states and states that already have a spend are rejected.
 - A spend must be a number that is not negative and does not exceed the remaining budget.
-- The run-again question accepts anything starting with `Y` or `N`.
+- The run-again question accepts anything starting with Y or N.
+- Bad entries show a message and ask again instead of crashing.
 
-Bad entries show a message and ask again instead of crashing.
+## Budget optimizer (Gurobi)
+
+The Java program lets you play the game. The optimizer answers the question: *what is the best possible plan?*
+
+**Key insight.** Because a state is won only when its swing reaches its deficit, there is a minimum spend that wins each state, and spending more than that adds no electoral votes. Solving `0.001 * sqrt(spend) >= deficit` for `spend` gives:
+
+| State | Minimum spend to win | Electoral votes |
+|-------|----------------------|-----------------|
+| WI    | $1,000,000           | 10              |
+| MI    | $2,250,000           | 15              |
+| PA    | $4,000,000           | 19              |
+| GA    | $6,250,000           | 16              |
+
+That turns the problem into an integer program (a knapsack problem): choose which states to win so that total electoral votes are maximized without exceeding the budget.
+
+**Model.**
+
+- **Decision variables:** one binary `win` variable and one continuous `spend` variable per state.
+- **Constraints:** `spend[s] >= min_spend[s] * win[s]` for each state, and total spend `<= budget`.
+- **Objective:** maximize total electoral votes, with a tiny penalty on spend so ties go to the cheaper plan.
+
+**Results with a $20M budget.**
+
+| Strategy | Electoral votes | Spend |
+|----------|-----------------|-------|
+| Equal split ($5M per state) | 44 | $20,000,000 |
+| Gurobi optimal plan | 60 | $13,500,000 |
+
+The optimal plan wins all four states using 32.5% less money than the equal split, leaving $6.5M unspent.
+
+### Running the optimizer
+
+You need Python 3 and the Gurobi package. The free pip license is size-limited but large enough for this model.
+
+```
+pip install gurobipy
+python optimizer/optimize.py
+```
+
+Do not commit your `gurobi.lic` license file.
 
 ## Project structure
 
 | File | Purpose |
 |------|---------|
-| `BattlegroundApp.java` | The user interface: Scanner input, input validation loops, the formatted `printf` report, and the run-again loop |
+| `BattlegroundApp.java` | The user interface: Scanner input, input validation loops, the formatted printf report, and the run-again loop |
 | `BattlegroundLogic.java` | The business logic: state data, state code cleanup and validation, the swing model, vote and spending totals, efficiency, and rating |
 | `BattlegroundLogicTest.java` | JUnit 5 tests for the logic methods |
+| `optimizer/optimize.py` | Gurobi integer program that finds the optimal spending plan |
 
 The logic is kept separate from the user interface so it can be tested without any console input or output.
 
-## Running it
+## Running the Java program
 
 You need a JDK (Java 11 or newer).
 
@@ -110,10 +153,12 @@ Or open the folder in an IDE such as IntelliJ and run `BattlegroundApp`.
 
 ## Running the tests
 
-The tests use JUnit 5 (Jupiter). In IntelliJ, right-click `BattlegroundLogicTest.java` and choose **Run**. If JUnit is not on the classpath, IntelliJ will offer to add it.
+The tests use JUnit 5 (Jupiter). In IntelliJ, right-click `BattlegroundLogicTest.java` and choose Run. If JUnit is not on the classpath, IntelliJ will offer to add it.
 
 The tests cover `calculateSwing` (zero, negative, normal, diminishing returns, and the cap), `standardizeStateCode`, `isValidState`, `isValidSpend`, `isStateWon`, `calculateTotalVotes`, `calculateTotalSpent`, `calculateEfficiency`, and `getRating`.
 
 ## Concepts demonstrated
 
-Scanner input and input validation, `if` / `else if` decisions, structured loops (no `while(true)`), methods with parameters and return values, `Math.sqrt` and `Math.min`, String methods (`trim`, `toUpperCase`, `substring`, `indexOf`, `length`), arrays, `printf` column formatting, and JUnit testing.
+**Java:** Scanner input and input validation, if / else if decisions, structured loops (no `while(true)`), methods with parameters and return values, `Math.sqrt` and `Math.min`, String methods (`trim`, `toUpperCase`, `substring`, `indexOf`, `length`), arrays, printf column formatting, and JUnit testing.
+
+**Optimization:** mathematical modeling of diminishing returns, binary decision variables, linear constraints, and integer programming with Gurobi.
